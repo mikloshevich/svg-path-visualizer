@@ -1,0 +1,67 @@
+class Sound {
+    constructor() {
+        this.intialized = false
+        this.fftSize = Math.pow(2, 7)
+
+        this.dataIntArray = new Uint8Array(this.fftSize)
+        this.dataFloatArray = new Float32Array(this.fftSize)
+
+        this.smoothDataArray = new Uint8Array(this.fftSize)
+        this.smoothDataFloatArray = new Float32Array(this.fftSize)
+    }
+
+    getSmoothFloatData(array, dt, speed) {
+        for (let i = 0; i < array.length; i++) {
+            this.smoothDataFloatArray[i] += (this.dataFloatArray[i] - this.smoothDataFloatArray[i]) * dt * speed
+        }
+        return this.smoothDataFloatArray
+    }
+
+    getFreqIntData() {
+        if (!this.analyser) {
+            return []
+        }
+        this.analyser.getByteFrequencyData(this.dataIntArray)
+        return this.dataIntArray
+    }
+
+    getFreqFloatData() {
+        if (!this.analyser) {
+            return []
+        }
+        this.analyser.getFloatFrequencyData(this.dataFloatArray)
+        return this.dataFloatArray
+    }
+
+    getWaveIntData() {
+        if (!this.analyser) {
+            return []
+        }
+        this.analyser.getByteTimeDomainData(this.dataIntArray)
+        return this.dataIntArray
+    }
+
+    getWaveFloatData() {
+        if (!this.analyser) {
+            return []
+        }
+        this.analyser.getFloatTimeDomainData(this.dataFloatArray)
+        return this.dataFloatArray
+    }
+
+    createAnalizer(source) {
+        this.audioCtx = new AudioContext()
+        this.audioSource = this.audioCtx.createMediaElementSource(source)
+
+        this.analyser = new AnalyserNode(this.audioCtx, {
+            fftSize: this.fftSize,
+            smoothingTimeConstant: 0,
+        })
+
+        this.audioSource.connect(this.analyser)
+        this.analyser.connect(this.audioCtx.destination)
+        this.bufferLength = this.analyser.frequencyBinCount
+        this.intialized = true
+        // console.log(this.bufferLength)
+    }
+}

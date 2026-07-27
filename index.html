@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="Sound.js" defer></script>
+    <script src="script.js" defer></script>
+    <title>Visualizer</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #232325;
+            font-family: sans-serif;
+            font-size: 16px;
+        }
+
+        .container {
+            display: grid;
+            place-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top: 0.5rem;
+        }
+
+        .cnv-wrapper {
+            width: 100%;
+        }
+        #cnv {
+            display: block;
+            width: 100%;
+            background-color: #000;
+        }
+
+        .upload-label {
+            display: block;
+            width: 100%;
+            background-color: #fff;
+            cursor: pointer;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .upload-label.drag-over {
+            background-color: #aaaaff;
+        }
+
+        .upload-label:hover {
+            background-color: #eef;
+        }
+
+        .upload-contnent {
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        .file-name {
+            display: inline-block;
+        }
+
+        .audio {
+            width: 100%;
+            background-color: #fff;
+        }
+
+        .audio audio {
+            display: block;
+            width: 100%;
+        }
+
+        .amplitude-label {
+            background-color: #fff;
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .amplitude-content {
+            display: grid;
+            gap: 0.25rem;
+        }
+
+        #upload {
+            display: none;
+        }
+
+        .reference {
+            opacity: 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cnv-wrapper">
+            <canvas id="cnv"></canvas>
+        </div>
+        <label class="upload-label" for="upload">
+            <div class="upload-contnent">
+                <p>Press and choose or drag file.</p>
+                <p class="file-name">Name: </p>
+            </div>
+            <input type="file" id="upload">
+        </label>
+        <div class="audio">
+            <audio data-audio controls loop></audio>
+            <!-- music/Mk.gee - Wheel.mp3 -->
+        </div>
+        <label for="amplitude" class="amplitude-label">
+            <div class="amplitude-content">
+                <p>Wave Amplitude &times;<span class="ampl-times">1</span></p>
+                <input type="range" id="amplitude" min="0.1" max="4" step="0.1" value="1">
+            </div>
+        </label>
+    </div>
+
+    <svg class="reference" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+        <path class="a" d="M15.71,191H85.53V171Q39.77,147.79,39.76,97.25q0-30.63,16.42-49.31t43.88-18.68q27.35,0,43.76,18.68t16.42,49.31q0,50.54-45.77,73.73v20h69.82V169.76H145q39.79-31.48,39.8-76.53,0-36.39-23.26-60.31T100.06,9Q61.74,9,38.48,32.92T15.22,93.23q0,45,39.8,76.53H15.71V191"/>
+    </svg>
+</body>
+</html>
