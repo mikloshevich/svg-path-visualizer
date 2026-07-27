@@ -31,7 +31,7 @@ cnv.height = cnv.width
 
 const cnvCenter = {
     x: cnv.width*0.5,
-    y: cnv.height,
+    y: cnv.height*0.3,
 }
 
 const slider = document.getElementById('amplitude')
@@ -106,7 +106,7 @@ function drawPathWave(points, dataArray, strokeColor=`hsl(0deg, 0%, 100%)`, offs
             ctx.lineTo(x, y)
         }
         if (i === points.length - 1) {
-            ctx.closePath()
+            // ctx.closePath()
             ctx.strokeStyle = strokeColor
             ctx.fillStyle = strokeColor
             ctx.lineWidth = lineWidth
@@ -143,7 +143,7 @@ function getPoints(svg) {
     const svgRect = svg.getBoundingClientRect()
     const ratio = (cnv.width / svgRect.width) * sizeScale
     const p = svg.querySelector('path')
-    const segmentsAmount = 256
+    const segmentsAmount = 128
     const pathLen = p.getTotalLength()
     // const segmentLen = Math.max(1, Math.round(pathLen / segmentsAmount))
     const segmentLen = pathLen / segmentsAmount

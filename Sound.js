@@ -1,7 +1,7 @@
 class Sound {
     constructor() {
         this.intialized = false
-        this.fftSize = Math.pow(2, 7)
+        this.fftSize = Math.pow(2, 8)
 
         this.dataIntArray = new Uint8Array(this.fftSize)
         this.dataFloatArray = new Float32Array(this.fftSize)
