@@ -8,6 +8,10 @@ class Sound {
 
         this.smoothDataArray = new Uint8Array(this.fftSize)
         this.smoothDataFloatArray = new Float32Array(this.fftSize)
+
+        this.audioCtx = null
+        this.audioSource = null
+        this.analyser = null
     }
 
     getSmoothFloatData(array, dt, speed) {
@@ -50,13 +54,24 @@ class Sound {
     }
 
     createAnalizer(source) {
-        this.audioCtx = new AudioContext()
-        this.audioSource = this.audioCtx.createMediaElementSource(source)
+        if (!this.audioCtx) {
+            this.audioCtx = new AudioContext()
+        }
 
-        this.analyser = new AnalyserNode(this.audioCtx, {
-            fftSize: this.fftSize,
-            smoothingTimeConstant: 0,
-        })
+        if (!this.analyser) {
+            this.analyser = new AnalyserNode(this.audioCtx, {
+                fftSize: this.fftSize,
+                smoothingTimeConstant: 0,
+            })
+        } else {
+            this.analyser.disconnect(this.audioCtx.destination)
+        }
+
+        if (!this.audioSource) {
+            this.audioSource = this.audioCtx.createMediaElementSource(source)
+        } else if (this.analyser) {
+            this.audioSource.disconnect(this.analyser)
+        }
 
         this.audioSource.connect(this.analyser)
         this.analyser.connect(this.audioCtx.destination)

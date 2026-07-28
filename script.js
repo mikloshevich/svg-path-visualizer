@@ -1,5 +1,21 @@
-const cnv = document.getElementById('cnv')
-const ctx = cnv.getContext('2d')
+const cnvWrapper = document.querySelector('.cnv-wrapper')
+// cnvWrapper.style.mixBlendMode = 'screen'
+
+const cnv2 = document.createElement('canvas')
+const ctx2 = cnv2.getContext('2d')
+cnv2.style.backgroundColor = '#000'
+cnv2.style.position = 'absolute'
+cnv2.style.top = 0
+cnv2.style.left = 0
+cnv2.style.width = '100%'
+
+cnv2.style.mixBlendMode = 'screen'
+
+cnvWrapper.appendChild(cnv2)
+
+
+const cnv1 = document.getElementById('cnv')
+const ctx1 = cnv.getContext('2d')
 const svgEl = document.querySelector('.reference')
 
 const dropZone = document.querySelector('.upload-label')
@@ -26,12 +42,15 @@ fileInput.addEventListener('change', (e) => {
     processFile(e.target.files)
 })
 
-cnv.width = 500
-cnv.height = cnv.width
+cnv1.width = 500
+cnv1.height = cnv1.width
+
+cnv2.width = cnv1.width
+cnv2.height = cnv1.height
 
 const cnvCenter = {
-    x: cnv.width*0.5,
-    y: cnv.height*0.3,
+    x: cnv1.width*0.5,
+    y: cnv1.height*0.3,
 }
 
 const slider = document.getElementById('amplitude')
@@ -45,7 +64,7 @@ slider.addEventListener('input', (e) => {
 
 const sizeScale = 0.8
 
-const points = getPoints(svgEl)
+const points = getPoints(svgEl, cnv1)
 
 let lastTime = 0
 function animate() {
@@ -55,38 +74,45 @@ function animate() {
         dt = 0.1
     }
 
-    // ctx.clearRect(0, 0, cnv.width, cnv.height)
-    ctx.fillStyle = `hsla(0deg, 0%, 0%, 0.1)`
-    ctx.fillRect(0, 0, cnv.width, cnv.height)
+    const dataArray = sound.getWaveFloatData()
+    // const smoothDataArray = sound.getSmoothFloatData(dataArray, dt, 2)
+
+    // ctx1.clearRect(0, 0, cnv1.width, cnv1.height)
+    ctx1.fillStyle = `hsla(0deg, 0%, 0%, 0.15)`
+    ctx1.fillRect(0, 0, cnv1.width, cnv1.height)
+
+    // ctx2.clearRect(0, 0, cnv1.width, cnv1.height)
+    ctx2.fillStyle = `hsla(0deg, 0%, 0%, 0.4)`
+    ctx2.fillRect(0, 0, cnv1.width, cnv1.height)
 
     // for (let i = 0; i < points.length; i++) {
     //     const x = points[i].pos.x
     //     const y = points[i].pos.y
-    //     drawPointOnCanvas(x, y)
+    //     drawPointOnCanvas(ctx2, x, y)
     // }
 
+    // drawHorizontalWave(ctx2, dataArray)
 
-    const dataArray = sound.getWaveFloatData()
-    // const smoothDataArray = sound.getSmoothFloatData(dataArray, dt, 2)
+    ctx1.save()
+    ctx1.globalCompositeOperation = 'lighter'
+    // ctx1.filter = 'blur(2px) contrast(3) saturate(3) brightness(3)' // contrast(2) saturate(1.5) brightness(10)
 
-    // drawHorizontalWave(dataArray)
+    drawPathWave(ctx1, points, dataArray, {strokeColor:`hsl(0deg, 100%, 50%)`, offset:0, lineWidth:4})
+    drawPathWave(ctx1, points, dataArray, {strokeColor:`hsl(120deg, 100%, 50%)`, offset:(Math.PI/180)*15,lineWidth:4})
+    drawPathWave(ctx1, points, dataArray, {strokeColor:`hsl(240deg, 100%, 50%)`, offset:(Math.PI/180)*30,lineWidth:4})
 
-    ctx.save()
+    ctx1.restore()
 
-    ctx.globalCompositeOperation = 'lighter'
-    ctx.filter = 'blur(2px)'
+    ctx2.save()
+    ctx2.globalCompositeOperation = 'lighter'
 
-    drawPathWave(points, dataArray, strokeColor=`hsl(0deg, 100%, 50%)`, offset=0)
-    drawPathWave(points, dataArray, strokeColor=`hsl(120deg, 100%, 50%)`, offset=(Math.PI/180)*15)
-    drawPathWave(points, dataArray, strokeColor=`hsl(240deg, 100%, 50%)`, offset=(Math.PI/180)*30)
+    drawPathWave(ctx2, points, dataArray, {power: 30,strokeColor:`hsl(0deg, 100%, 50%)`, offset:0,lineWidth:4})
+    drawPathWave(ctx2, points, dataArray, {power: 30,strokeColor:`hsl(120deg, 100%, 50%)`, offset:(Math.PI/180)*15,lineWidth:4})
+    drawPathWave(ctx2, points, dataArray, {power: 30,strokeColor:`hsl(240deg, 100%, 50%)`, offset:(Math.PI/180)*30,lineWidth:4})
 
-    ctx.filter = 'none'
+    ctx2.restore()
 
-    drawPathWave(points, dataArray, strokeColor=`hsl(0deg, 100%, 50%)`, offset=0,lineWidth=2)
-    drawPathWave(points, dataArray, strokeColor=`hsl(120deg, 100%, 50%)`, offset=(Math.PI/180)*15,lineWidth=2)
-    drawPathWave(points, dataArray, strokeColor=`hsl(240deg, 100%, 50%)`, offset=(Math.PI/180)*30,lineWidth=2)
-
-    ctx.restore()
+    // drawPathWave(ctx2, points, dataArray, {strokeColor:`hsl(0deg, 100%, 0%)`, offset:0,lineWidth:4})
 
     lastTime = currentTime
 
@@ -94,7 +120,7 @@ function animate() {
 }
 animate()
 
-function drawPathWave(points, dataArray, strokeColor=`hsl(0deg, 0%, 100%)`, offset=1, lineWidth=1, power=20, isFill=false) {
+function drawPathWave(ctx, points, dataArray, {strokeColor=`hsl(0deg, 0%, 100%)`, offset=1, lineWidth=1, power=20, isFill=false} = {}) {
     for (let i = 0; i < points.length; i++) {
         const waveData = dataArray[(i)%(sound.fftSize)] || 0
         const x = points[i].pos.x + Math.cos(points[i].angleToCenter+offset) * waveData*power*amplitudeBoost
@@ -118,7 +144,7 @@ function drawPathWave(points, dataArray, strokeColor=`hsl(0deg, 0%, 100%)`, offs
     }
 }
 
-function drawHorizontalWave(dataArray) {
+function drawHorizontalWave(ctx, dataArray) {
     const sliceWidth = cnv.width / sound.fftSize
     let x = 0
     ctx.beginPath()
@@ -137,7 +163,7 @@ function drawHorizontalWave(dataArray) {
     ctx.stroke()
 }
 
-function getPoints(svg) {
+function getPoints(svg, cnv) {
     const arr = []
     svg.style.display = 'block'
     const svgRect = svg.getBoundingClientRect()
@@ -171,7 +197,7 @@ function processFile(files) {
     }
 }
 
-function drawPointOnCanvas(x, y, radius=5, color='#fff') {
+function drawPointOnCanvas(ctx, x, y, radius=3, color='#f55') {
     ctx.beginPath()
     ctx.arc(x,y, radius, 0, Math.PI*2)
     ctx.fillStyle = color
